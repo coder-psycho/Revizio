@@ -8,8 +8,8 @@ const loginHandler = async (req, res) => {
     return res.status(405).end();
   }
 
-  const { username,password } = req.body;
-  const user = await User.findOne({username: username})
+  const { email,password } = req.body;
+  const user = await User.findOne({email: email})
 
   if (!user) {
     return res.status(401).json({ type: "error",message: 'Invalid username or Password' });

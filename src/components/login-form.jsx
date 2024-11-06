@@ -1,3 +1,4 @@
+"use client"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -13,13 +14,16 @@ import { Label } from "@/components/ui/label"
 import axios from "axios"
 import toast from "react-hot-toast"
 import { useState } from "react"
+import { useUserStore } from "@/store/store"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
-const [password, setPassword] = useState("")
+const [password, setPassword] = useState("");
+
+const {SetIsLogin, SetEmail, SetUsername, SetUserId} = useUserStore();
   const login = async() => {
     const data = {
-        username, password
+        email, password
     }
     console.log(data)
 
@@ -29,8 +33,11 @@ const [password, setPassword] = useState("")
     console.log(res);
     if (res.type == "success"){
         toast.success(res.message);
-        SetIsLogin(true);
         localStorage.setItem("revi-token", res.token)
+        SetIsLogin(true);
+        SetEmail(res.userData.email);
+        SetUserId(res.userData.userId);
+        SetUsername(res.userData.username);
         
     }
     else {
@@ -38,6 +45,7 @@ const [password, setPassword] = useState("")
     }
   }
   catch(error) {
+    console.log(error)
     toast.error(error.response.data.message)
   }
 }

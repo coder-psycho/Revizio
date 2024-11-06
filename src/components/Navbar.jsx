@@ -17,7 +17,10 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
-
+import axios from "axios"
+import { useUserStore } from "@/store/store"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 const navItems = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
@@ -26,7 +29,33 @@ const navItems = [
 ]
 
 export default function Navbar() {
+const {SetIsLogin, SetEmail, SetUsername, SetUserId, Username} = useUserStore();
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+
+  const verifyToken = async() => {
+    const token = localStorage.getItem("revi-token");
+    const req = await axios.post("/api/auth/verify", {
+      token: token
+    })
+    console.log(req)
+
+    if (req.data.type == "success") {
+      SetIsLogin(true);
+      SetUsername(req.data.user.username);
+      SetEmail(req.data.user.email);
+      SetUserId(req.data.user._id);
+    }
+    else {
+      toast.error("token expired. Please log in")
+    }
+
+  }
+
+  React.useEffect(() => {
+   verifyToken();
+  }, [])
+  
 
   return (
     <nav className="bg-background border-b">
@@ -49,7 +78,7 @@ export default function Navbar() {
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <ProfileDropdown />
+            <ProfileDropdown Username={Username}/>
           </div>
           <div className="flex items-center sm:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -84,7 +113,19 @@ export default function Navbar() {
   )
 }
 
-function ProfileDropdown() {
+function ProfileDropdown({Username}) {
+  const router = useRouter();
+const {SetIsLogin, SetEmail, SetUsername, SetUserId} = useUserStore();
+
+  const logout = () => {
+    localStorage.removeItem("revi-token");
+    toast.success("Logged out successfully");
+    router.push("/login");
+    SetIsLogin(false);
+    SetEmail("");
+    SetUsername("");
+    SetUserId("");
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -94,16 +135,21 @@ function ProfileDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuItem>
+      <p>Welcome, {Username}</p>
+      </DropdownMenuItem>
         <DropdownMenuItem>
+          <Link className="flex justify-center items-center" href={"/decks"}>
           <User className="mr-2 h-4 w-4" />
-          <span>Profile</span>
+          <span>Decks</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
