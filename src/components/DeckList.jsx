@@ -11,15 +11,6 @@ import { useUserStore } from "@/store/store"
 import axios from "axios";
 import toast from "react-hot-toast"
 
-// Updated mock data for decks
-const mockDecks = [
-  { id: 1, title: "JavaScript Basics", description: "Fundamental concepts of JavaScript", subject: "Programming", visibility: "public", tags: ["javascript", "web development"], cardCount: 30, lastModified: "2023-11-01" },
-  { id: 2, title: "React Hooks", description: "Understanding and using React Hooks", subject: "Web Development", visibility: "private", tags: ["react", "javascript", "hooks"], cardCount: 25, lastModified: "2023-11-03" },
-  { id: 3, title: "CSS Flexbox", description: "Mastering CSS Flexbox layout", subject: "Web Design", visibility: "public", tags: ["css", "flexbox", "layout"], cardCount: 20, lastModified: "2023-11-05" },
-  { id: 4, title: "Python Data Structures", description: "Common data structures in Python", subject: "Programming", visibility: "private", tags: ["python", "data structures", "algorithms"], cardCount: 35, lastModified: "2023-11-07" },
-  { id: 5, title: "SQL Queries", description: "Writing efficient SQL queries", subject: "Database", visibility: "public", tags: ["sql", "database", "queries"], cardCount: 28, lastModified: "2023-11-09" },
-  { id: 6, title: "Git Commands", description: "Essential Git commands and workflows", subject: "Version Control", visibility: "public", tags: ["git", "version control"], cardCount: 15, lastModified: "2023-11-11" },
-]
 
 export default function DeckList() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -85,7 +76,7 @@ export default function DeckList() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredDecks.map((deck) => (
-          <Card key={deck.id} className="flex flex-col">
+          <Card key={deck._id} className="flex flex-col">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 {deck.title}
