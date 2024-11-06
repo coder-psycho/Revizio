@@ -23,8 +23,8 @@ import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 const navItems = [
   { name: "Home", href: "/" },
+  { name: "Library", href: "/library" },
   { name: "About", href: "/about" },
-  { name: "Services", href: "/services" },
   { name: "Contact", href: "/contact" },
 ]
 

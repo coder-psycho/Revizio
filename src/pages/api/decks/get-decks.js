@@ -3,8 +3,7 @@ import connectDB from '@/middlewares/connectDB';
 
 const loginHandler = async (req, res) => {
     try {
-      console.log(req.body.userId)
-        const decks = await Deck.find({userId: req.body.userId});
+        const decks = await Deck.find({visibility: "public"}).populate("userId", "username email");
         res.status(200).json({ type: "success", decks: decks });
       } catch (error) {
         console.log(error)

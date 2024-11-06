@@ -144,7 +144,7 @@ export default function SingleDeckView({params}) {
       <p className="text-gray-600 mb-4">{deckInfo.description}</p>
 
       <div className="flex flex-wrap gap-2 mb-4">
-        {deckInfo.tags.map((tag, index) => (
+        {deckInfo?.tags?.map((tag, index) => (
           <span key={index} className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-sm">
             {tag}
           </span>
