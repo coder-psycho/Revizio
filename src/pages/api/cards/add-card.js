@@ -6,7 +6,8 @@ const addCardHandler = async (req, res) => {
         const card = new Card({
           front: req.body.front,
           back: req.body.back,
-          deckId: req.body.deckId
+          deckId: req.body.deckId,
+          userId: req.body.userId
         });
         await card.save();
         return res.status(201).json({ type: "success", message: "Card added Successfully" });

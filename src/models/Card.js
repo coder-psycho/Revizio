@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const deckSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  },
     deckId: {
       type: mongoose.Schema.Types.ObjectId,
         ref: "Deck"
@@ -10,7 +14,9 @@ const deckSchema = new mongoose.Schema({
       },
       back: {
         type: String, 
-      }
+      },
+      interval: { type: Number, default: 1 }, // in minutes or days depending on implementation
+      nextReviewDate: { type: Date, default: Date.now },
     }, { timestamps: true });
 
 mongoose.models = {}

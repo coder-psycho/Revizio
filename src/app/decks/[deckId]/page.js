@@ -10,36 +10,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { PlayCircle, PauseCircle, RotateCcw, Edit, Trash2, Plus } from "lucide-react"
 import axios from "axios"
 import { toast } from "react-hot-toast"
-
-// Mock data for the deck and its cards
-const deckData = {
-  id: "1",
-  title: "JavaScript Basics",
-  description: "Learn the fundamentals of JavaScript programming",
-  cardCount: 10,
-  subject: "Programming",
-  tags: ["javascript", "web development", "coding"],
-  cards: [
-    { id: "1", front: "What is a variable?", back: "A container for storing data values" },
-    { id: "2", front: "What is a function?", back: "A reusable block of code that performs a specific task" },
-    { id: "3", front: "What is an array?", back: "A special variable that can hold more than one value" },
-    { id: "4", front: "What is a loop?", back: "A way to repeat a block of code multiple times" },
-    { id: "5", front: "What is an object?", back: "A container for properties and methods" },
-    { id: "6", front: "What is a conditional statement?", back: "A way to perform different actions based on different conditions" },
-    { id: "7", front: "What is the DOM?", back: "Document Object Model - a programming interface for HTML and XML documents" },
-    { id: "8", front: "What is an event listener?", back: "A function that waits for an event to occur" },
-    { id: "9", front: "What is a callback function?", back: "A function passed as an argument to another function" },
-    { id: "10", front: "What is scope in JavaScript?", back: "The context in which values and expressions are 'visible' or can be referenced" },
-  ]
-}
+import { useUserStore } from "@/store/store"
+import { Badge } from "@/components/ui/badge"
 
 export default function SingleDeckView({params}) {
   const {deckId} = params;
+  const {UserId} = useUserStore();
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [showBack, setShowBack] = useState(false)
   const [newCard, setNewCard] = useState({ front: "", back: "" })
   const [cards, setCards] = useState([])
+  const [reviewCards, setReviewCards] = useState([])
   const [deckInfo, setDeckInfo] = useState({})
 
   const startPlaying = () => {
@@ -54,6 +36,13 @@ export default function SingleDeckView({params}) {
     setCards(data.cards);
     
   }
+  const getReviewCards = async() => {
+    const res = await axios.post("/api/cards/get-due-cards", {deckId, userId: UserId});
+    const data = res.data;
+    console.log(data);
+    setReviewCards(data.cards);
+    
+  }
 
 
   const stopPlaying = () => {
@@ -63,10 +52,11 @@ export default function SingleDeckView({params}) {
   }
 
   const nextCard = () => {
-    if (currentCardIndex < cards.length - 1) {
+    if (currentCardIndex < reviewCards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1)
       setShowBack(false)
     } else {
+      toast.success("You have completed the study session");
       stopPlaying()
     }
   }
@@ -83,7 +73,7 @@ export default function SingleDeckView({params}) {
   const addNewCard = async() => {
     if (newCard.front && newCard.back) {
 
-      const newCardWithId = { ...newCard, id: `${cards.length + 1}`, deckId: deckId }
+      const newCardWithId = { ...newCard, id: `${cards.length + 1}`, deckId: deckId, userId: UserId }
       console.log(newCardWithId)
       const res = await axios.post("/api/cards/add-card",newCardWithId);
       const data = res.data;
@@ -121,9 +111,23 @@ export default function SingleDeckView({params}) {
     }
   }
 
+  const updateCardInfo = async(difficulty) => {
+    const re = await axios.post("/api/cards/update-card-details", {cardId: reviewCards[currentCardIndex]._id, difficulty});
+    const data = re.data;
+
+    if (data.type == "success") {
+      // toast.success(data.message);
+      nextCard();
+    }
+    else {
+      toast.error(data.message);
+    }
+  }
+
   useEffect(() => {
     getDeckInfo();
     getDeckCards();
+    getReviewCards();
   }, [])
   
 
@@ -158,23 +162,38 @@ export default function SingleDeckView({params}) {
             {isPlaying ? (
               <div className="text-center">
                 <h3 className="text-lg font-medium mb-4">
-                  Card {currentCardIndex + 1} of {cards.length}
+                  Card {currentCardIndex + 1} of {reviewCards.length}
                 </h3>
                 <p className="text-2xl mb-4">
                   {showBack
-                    ? cards[currentCardIndex].back
-                    : cards[currentCardIndex].front}
+                    ? reviewCards[currentCardIndex].back
+                    : reviewCards[currentCardIndex].front}
                 </p>
                 <Button onClick={flipCard} className="mb-4">
                   Flip Card
                 </Button>
                 <div className="flex justify-center space-x-4">
-                  <Button onClick={stopPlaying}>
+                  {/* <Button onClick={stopPlaying}>
                     <RotateCcw className="h-4 w-4 mr-2" />
                     Reset
                   </Button>
                   <Button onClick={nextCard}>
                     Next Card
+                  </Button> */}
+                   <Button onClick={()=> {
+                    updateCardInfo("easy");
+                   }}>
+                    Easy
+                  </Button>
+                   <Button onClick={()=>{
+                    updateCardInfo("medium");
+                   }}>
+                    Medium
+                  </Button>
+                   <Button onClick={()=> {
+                    updateCardInfo("hard");
+                   }}>
+                    Hard
                   </Button>
                 </div>
               </div>
@@ -193,9 +212,9 @@ export default function SingleDeckView({params}) {
 
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-2">Progress</h2>
-        <Progress value={(currentCardIndex / cards.length) * 100} className="w-full" />
+        <Progress value={(currentCardIndex / reviewCards.length) * 100} className="w-full" />
         <p className="text-sm text-gray-600 mt-2">
-          {currentCardIndex} of {cards.length} cards studied
+          {currentCardIndex} of {reviewCards.length} cards studied
         </p>
       </div>
 
@@ -242,8 +261,18 @@ export default function SingleDeckView({params}) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {cards.map((card, index) => (
             <Card key={card._id} className="hover:shadow-lg transition-shadow">
+             
+       
               <CardContent className="p-4">
-                <p className="font-medium mb-2">Card {index + 1}</p>
+             <div className="my-3 flex items-center">
+                <p className="font-medium ">Card {index + 1}</p>
+                {new Date(card.nextReviewDate) <= new Date() && (
+              <Badge className={"ml-3"} >
+        Review
+
+        </Badge>
+      )}
+             </div>
                 <p className="text-sm text-gray-600 mb-2">Front: {card.front}</p>
                 <p className="text-sm text-gray-600">Back: {card.back}</p>
               </CardContent>
