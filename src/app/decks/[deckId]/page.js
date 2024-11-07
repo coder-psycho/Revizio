@@ -12,9 +12,11 @@ import axios from "axios"
 import { toast } from "react-hot-toast"
 import { useUserStore } from "@/store/store"
 import { Badge } from "@/components/ui/badge"
-
-export default function SingleDeckView({params}) {
-  const {deckId} = params;
+import { use } from 'react'
+export default function SingleDeckView(props) {
+  const params = use(props.params)
+  const deckId = params.deckId;
+  // const [deckId, setDeckId] = useState("");
   const {UserId} = useUserStore();
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -124,24 +126,42 @@ export default function SingleDeckView({params}) {
     }
   }
 
+  const importDeck = async() => {
+    console.log(deckId, UserId);
+   
+    const re = await axios.post("/api/decks/import-deck", {deckId, userId: UserId});
+    const data = re.data;
+
+    if (data.type === "success") {
+      toast.success(data.message);
+    }
+    else {
+      toast.error(data.message);
+    }
+  }
+
   useEffect(() => {
     getDeckInfo();
     getDeckCards();
     getReviewCards();
   }, [])
-  
+
+
+
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">{deckInfo.title}</h1>
         <div className="space-x-2">
-          <Button variant="outline" size="icon">
-            <Edit className="h-4 w-4" />
+         {
+          deckInfo.userId != UserId?(
+            <Button onClick={importDeck} variant="outline">
+            Import
           </Button>
-          <Button variant="outline" size="icon">
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          ):null
+         }
+         
         </div>
       </div>
 
@@ -200,10 +220,17 @@ export default function SingleDeckView({params}) {
             ) : (
               <div className="text-center">
                 <p className="mb-4">Ready to start studying?</p>
-                <Button onClick={startPlaying}>
+               {
+                deckInfo.userId == UserId?(
+                  <Button onClick={startPlaying}>
                   <PlayCircle className="h-4 w-4 mr-2" />
                   Start Session
                 </Button>
+                ):(
+                  <p>Import this deck by clicking on "Import" button to study this deck</p>
+                )
+               }
+               
               </div>
             )}
           </CardContent>
@@ -223,10 +250,15 @@ export default function SingleDeckView({params}) {
           <h2 className="text-xl font-semibold">All Cards</h2>
           <Dialog>
             <DialogTrigger asChild>
-              <Button>
+            {
+          deckInfo.userId == UserId?(
+            <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Card
               </Button>
+          ):null
+         }
+             
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -277,9 +309,14 @@ export default function SingleDeckView({params}) {
                 <p className="text-sm text-gray-600">Back: {card.back}</p>
               </CardContent>
               <CardFooter>
-                <Button variant="destructive" onClick={()=>{
-                  deleteCard(card._id);
-                }}>Delete Card</Button>
+              {
+          deckInfo.userId == UserId?(
+            <Button variant="destructive" onClick={()=>{
+              deleteCard(card._id);
+            }}>Delete Card</Button>
+          ):null
+         }
+                
               </CardFooter>
             </Card>
           ))}

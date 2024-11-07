@@ -29,7 +29,7 @@ const navItems = [
 ]
 
 export default function Navbar() {
-const {SetIsLogin, SetEmail, SetUsername, SetUserId, Username} = useUserStore();
+const {SetIsLogin, SetEmail, SetUsername, SetUserId, IsLogin, Username, UserId} = useUserStore();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
@@ -78,7 +78,23 @@ const {SetIsLogin, SetEmail, SetUsername, SetUserId, Username} = useUserStore();
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <ProfileDropdown Username={Username}/>
+            {
+                    IsLogin?(
+                      <ProfileDropdown Username={Username}/>
+
+                    ):(
+                      <div>
+                        <Button className={"mx-3"} asChild>
+  <Link href="/login">Login</Link>
+</Button>
+
+
+<Button asChild>
+  <Link href="/signup">Signup</Link>
+</Button>
+                        </div>
+                    )
+                  }
           </div>
           <div className="flex items-center sm:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -102,7 +118,22 @@ const {SetIsLogin, SetEmail, SetUsername, SetUserId, Username} = useUserStore();
                   ))}
                 </nav>
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <ProfileDropdown />
+                  {
+                    IsLogin?(
+                      <ProfileDropdown Username={Username}/>
+                    ):(
+                      <div>
+                        <Button  className={"mx-3"}  asChild>
+  <Link href="/login">Login</Link>
+</Button>
+
+
+<Button asChild>
+  <Link href="/signup">Signup</Link>
+</Button>
+                        </div>
+                    )
+                  }
                 </div>
               </SheetContent>
             </Sheet>
@@ -115,7 +146,7 @@ const {SetIsLogin, SetEmail, SetUsername, SetUserId, Username} = useUserStore();
 
 function ProfileDropdown({Username}) {
   const router = useRouter();
-const {SetIsLogin, SetEmail, SetUsername, SetUserId} = useUserStore();
+const {SetIsLogin, SetEmail, SetUsername, SetUserId, UserId} = useUserStore();
 
   const logout = () => {
     localStorage.removeItem("revi-token");
@@ -137,6 +168,7 @@ const {SetIsLogin, SetEmail, SetUsername, SetUserId} = useUserStore();
       <DropdownMenuContent align="end" className="w-56">
       <DropdownMenuItem>
       <p>Welcome, {Username}</p>
+      {/* <p>User ID: {UserId}</p> */}
       </DropdownMenuItem>
         <DropdownMenuItem>
           <Link className="flex justify-center items-center" href={"/decks"}>

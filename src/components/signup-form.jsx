@@ -71,7 +71,7 @@ const [password, setPassword] = useState("")
         </div>
         <div className="mt-4 text-center text-sm">
           Have an account?{" "}
-          <Link href="#" className="underline">
+          <Link href="/login" className="underline">
             Login
           </Link>
         </div>

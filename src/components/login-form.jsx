@@ -15,8 +15,10 @@ import axios from "axios"
 import toast from "react-hot-toast"
 import { useState } from "react"
 import { useUserStore } from "@/store/store"
+import { useRouter } from "next/navigation"
 
 export function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("")
 const [password, setPassword] = useState("");
 
@@ -38,6 +40,7 @@ const {SetIsLogin, SetEmail, SetUsername, SetUserId} = useUserStore();
         SetEmail(res.userData.email);
         SetUserId(res.userData.userId);
         SetUsername(res.userData.username);
+        router.push("/decks");
         
     }
     else {
@@ -77,7 +80,7 @@ const {SetIsLogin, SetEmail, SetUsername, SetUserId} = useUserStore();
         </div>
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
-          <Link href="#" className="underline">
+          <Link href="/signup" className="underline">
             Sign up
           </Link>
         </div>
