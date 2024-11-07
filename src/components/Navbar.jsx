@@ -21,6 +21,8 @@ import axios from "axios"
 import { useUserStore } from "@/store/store"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
+import ThemeToggle from "./ThemeToggle"
+import Image from "next/image"
 const navItems = [
   { name: "Home", href: "/" },
   { name: "Library", href: "/library" },
@@ -63,7 +65,11 @@ const {SetIsLogin, SetEmail, SetUsername, SetUserId, IsLogin, Username, UserId} 
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-bold text-primary">Logo</span>
+              <Link href={"/"}>
+              <span className="text-2xl font-bold text-primary">
+                <Image src="/logo.png" alt="logo" width={40} height={40} />
+              </span>
+              </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {navItems.map((item) => (
@@ -78,6 +84,8 @@ const {SetIsLogin, SetEmail, SetUsername, SetUserId, IsLogin, Username, UserId} 
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
+          <ThemeToggle  className="mx-5"/>
+
             {
                     IsLogin?(
                       <ProfileDropdown Username={Username}/>
@@ -118,6 +126,7 @@ const {SetIsLogin, SetEmail, SetUsername, SetUserId, IsLogin, Username, UserId} 
                   ))}
                 </nav>
                 <div className="mt-4 pt-4 border-t border-gray-200">
+                  <ThemeToggle  className="mx-5"/>
                   {
                     IsLogin?(
                       <ProfileDropdown Username={Username}/>
